@@ -55,7 +55,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 // a REST HTTP endpoint router determines which action to take
 func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	ctn := createDeviceModelAPIInstance()
-	api := ctn.Resolve("device-model-API").(deviceapi.DeviceModelAPIInstance)
+	api := ctn.Resolve("device-model-API").(*deviceapi.DeviceModelAPIInstance)
 	switch req.HTTPMethod {
 	case "GET":
 		return get(api, req)
@@ -76,7 +76,7 @@ func createDeviceModelAPIInstance() *registry.DeviceModelContainer {
 }
 
 // process HTTP Get request
-func get(api deviceapi.DeviceModelAPIInstance, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func get(api *deviceapi.DeviceModelAPIInstance, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	rawName, found := req.QueryStringParameters["name"]
 	if found {
 		// query parameters are typically URL encoded so to get the value
