@@ -60,7 +60,10 @@ REPORT RequestId: 9cf64e41-3867-154b-3145-c4c8745c1a94  Init Duration: 130.50 ms
 No Content-Type given. Defaulting to 'application/json'.
 2020-08-18 14:52:18 127.0.0.1 - - [18/Aug/2020 14:52:18] "GET /devicemodels HTTP/1.1" 200 -
 
+Similarly to query model name:
 
+curl http://127.0.0.1:3000/devicemodels?name=Trio
+{"modelName":"Trio","ModelNumber":"8300","DeviceType":"IPPHONE","DeviceTypeUUID":"f957617b-e773-4864-95f1-df82a6fe5e09","Vendor":"Polycom","TypePatterns":["8300"]}
 
 
 
