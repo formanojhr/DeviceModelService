@@ -1,11 +1,5 @@
 
 
-This was built using serverless framework which provides abstraction for serverless deployment across cloud providers.
-
-https://www.serverless.com/blog/framework-example-golang-lambda-support
-Project Created using go lambda template
-$ serverless create -t aws-go-dep -p myservice
-
 The default command in the included Makefile will gather your dependencies and build the proper binaries for your functions.
 
 Build
@@ -65,7 +59,132 @@ Similarly to query model name:
 curl http://127.0.0.1:3000/devicemodels?name=Trio
 {"modelName":"Trio","ModelNumber":"8300","DeviceType":"IPPHONE","DeviceTypeUUID":"f957617b-e773-4864-95f1-df82a6fe5e09","Vendor":"Polycom","TypePatterns":["8300"]}
 
+AWS Lambda Deployment
+=====================
+Use the makefile command package and deploy
 
+First time only :
+* Create a new S3 bucket for deployment artificats
+
+aws s3 mb s3://device-model-lambda
+
+Package the go binary into zip file and upload to the created S3 bucket
+
+sam package --template-file template.yaml --s3-bucket device-model-lambda --output-template-file packaged.yaml
+
+
+Now deployment the resources needed for the serverless function(including API Gateway)
+
+sam deploy --template-file packaged.yaml --stack-name devicemodelapi --capabilities CAPABILITY_IAM
+
+
+Output:
+
+#sam package --template-file  --s3-bucket  --output-template-file 
+sam deploy --template-file packaged.yaml --stack-name devicemodelapi --capabilities CAPABILITY_IAM
+
+        Deploying with following values
+        ===============================
+        Stack name                 : devicemodelapi
+        Region                     : None
+        Confirm changeset          : False
+        Deployment s3 bucket       : None
+        Capabilities               : ["CAPABILITY_IAM"]
+        Parameter overrides        : {}
+
+Initiating deployment
+=====================
+
+Waiting for changeset to be created..
+
+CloudFormation stack changeset
+------------------------------------------------------------------------------------------------------
+Operation                          LogicalResourceId                  ResourceType                     
+------------------------------------------------------------------------------------------------------
++ Add                              DeviceModelFunctionGetRequestPer   AWS::Lambda::Permission          
+                                   missionProd                                                         
++ Add                              DeviceModelFunctionRole            AWS::IAM::Role                   
++ Add                              DeviceModelFunction                AWS::Lambda::Function            
++ Add                              ServerlessRestApiDeployment3493b   AWS::ApiGateway::Deployment      
+                                   7e1e9                                                               
++ Add                              ServerlessRestApiProdStage         AWS::ApiGateway::Stage           
++ Add                              ServerlessRestApi                  AWS::ApiGateway::RestApi         
+------------------------------------------------------------------------------------------------------
+
+Changeset created successfully. arn:aws:cloudformation:us-east-1:466137380188:changeSet/samcli-deploy1598404130/7b376e93-55b7-4d5a-915e-117745060687
+
+
+2020-08-25 18:09:01 - Waiting for stack create/update to complete
+
+CloudFormation events from changeset
+-----------------------------------------------------------------------------------------------------
+ResourceStatus            ResourceType              LogicalResourceId         ResourceStatusReason    
+-----------------------------------------------------------------------------------------------------
+CREATE_IN_PROGRESS        AWS::IAM::Role            DeviceModelFunctionRole   -                       
+CREATE_IN_PROGRESS        AWS::IAM::Role            DeviceModelFunctionRole   Resource creation       
+                                                                              Initiated               
+CREATE_COMPLETE           AWS::IAM::Role            DeviceModelFunctionRole   -                       
+CREATE_IN_PROGRESS        AWS::Lambda::Function     DeviceModelFunction       -                       
+CREATE_IN_PROGRESS        AWS::Lambda::Function     DeviceModelFunction       Resource creation       
+                                                                              Initiated               
+CREATE_COMPLETE           AWS::Lambda::Function     DeviceModelFunction       -                       
+CREATE_IN_PROGRESS        AWS::ApiGateway::RestAp   ServerlessRestApi         -                       
+                          i                                                                           
+CREATE_IN_PROGRESS        AWS::ApiGateway::RestAp   ServerlessRestApi         Resource creation       
+                          i                                                   Initiated               
+CREATE_COMPLETE           AWS::ApiGateway::RestAp   ServerlessRestApi         -                       
+                          i                                                                           
+CREATE_IN_PROGRESS        AWS::ApiGateway::Deploy   ServerlessRestApiDeploy   -                       
+                          ment                      ment3493b7e1e9                                    
+CREATE_IN_PROGRESS        AWS::Lambda::Permission   DeviceModelFunctionGetR   -                       
+                                                    equestPermissionProd                              
+CREATE_IN_PROGRESS        AWS::ApiGateway::Deploy   ServerlessRestApiDeploy   Resource creation       
+                          ment                      ment3493b7e1e9            Initiated               
+CREATE_IN_PROGRESS        AWS::Lambda::Permission   DeviceModelFunctionGetR   Resource creation       
+                                                    equestPermissionProd      Initiated               
+CREATE_COMPLETE           AWS::ApiGateway::Deploy   ServerlessRestApiDeploy   -                       
+                          ment                      ment3493b7e1e9                                    
+CREATE_IN_PROGRESS        AWS::ApiGateway::Stage    ServerlessRestApiProdSt   -                       
+                                                    age                                               
+CREATE_IN_PROGRESS        AWS::ApiGateway::Stage    ServerlessRestApiProdSt   Resource creation       
+                                                    age                       Initiated               
+CREATE_COMPLETE           AWS::ApiGateway::Stage    ServerlessRestApiProdSt   -                       
+                                                    age                                               
+CREATE_COMPLETE           AWS::Lambda::Permission   DeviceModelFunctionGetR   -                       
+                                                    equestPermissionProd                              
+CREATE_COMPLETE           AWS::CloudFormation::St   devicemodelapi            -                       
+                          ack                                                                         
+-----------------------------------------------------------------------------------------------------
+
+CloudFormation outputs from deployed stack
+------------------------------------------------------------------------------------------------------
+Outputs                                                                                              
+------------------------------------------------------------------------------------------------------
+Key                 DeviceModelAPI                                                                   
+Description         API Gateway endpoint URL for Dev environment for First Function                  
+Value               https://a1lgy5kwhh.execute-api.us-east-1.amazonaws.com/Dev/devicemodels/         
+
+Key                 DeviceModelFunction                                                              
+Description         Device Model Dev ARN                                                             
+Value               arn:aws:lambda:us-east-1:466137380188:function:devicemodelapi-                   
+DeviceModelFunction-1DPVGB483T42L                                                                    
+
+Key                 DeviceModelFunctionIamRole                                                       
+Description         Implicit IAM Role created for Device Model function                              
+Value               arn:aws:iam::466137380188:role/devicemodelapi-DeviceModelFunctionRole-           
+TMU245643EDJ                                                                                         
+------------------------------------------------------------------------------------------------------
+
+Successfully created/updated stack - devicemodelapi in None
+
+
+
+
+This was built using serverless framework which provides abstraction for serverless deployment across cloud providers.
+
+https://www.serverless.com/blog/framework-example-golang-lambda-support
+Project Created using go lambda template
+$ serverless create -t aws-go-dep -p myservice
 
 
 SERVERLESS framework deployment
