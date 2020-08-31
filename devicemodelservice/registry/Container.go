@@ -3,7 +3,8 @@ package registry
 import (
 	"DeviceModelService/devicemodelservice/api"
 	service2 "DeviceModelService/devicemodelservice/domain/service"
-	"DeviceModelService/devicemodelservice/persistence/inmemory"
+	//"DeviceModelService/devicemodelservice/persistence/inmemory"
+	"DeviceModelService/devicemodelservice/persistence/db"
 	"github.com/sarulabs/di"
 )
 
@@ -42,7 +43,8 @@ func (c *DeviceModelContainer) Clean() error {
 }
 
 func buildDeviceModelAPI(ctn di.Container) (interface{}, error) {
-	repo := inmemory.NewDeviceModelRepository()
+	//repo := inmemory.NewDeviceModelRepository()
+	repo := db.New()
 	service := service2.NewDeviceModelService(repo)
 	return api.NewDeviceModelAPI(service), nil
 }
