@@ -41,7 +41,7 @@ func (r *DeviceModelRepository) FindAll() ([]*model.DeviceModel, error) {
 	i := 0
 	for _, deviceModel := range r.devicemodels {
 		deviceModels[i] = model.NewDeviceModel(deviceModel.ModelName, deviceModel.ModelNumber, deviceModel.DeviceType,
-			deviceModel.DeviceTypeUUID, deviceModel.Vendor)
+			deviceModel.DeviceTypeUUID, deviceModel.Vendor, deviceModel.TypePatterns)
 		i++
 	}
 	return deviceModels, nil
@@ -59,7 +59,7 @@ func (r *DeviceModelRepository) FindByModelName(name string) (*model.DeviceModel
 	return nil, nil
 }
 
-func (r *DeviceModelRepository) Save(modelIn *model.DeviceModel) error {
+func (r *DeviceModelRepository) Save(modelIn *model.DeviceModel) (error, model.DeviceModel) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -69,5 +69,6 @@ func (r *DeviceModelRepository) Save(modelIn *model.DeviceModel) error {
 		DeviceTypeUUID: modelIn.DeviceTypeUUID,
 		Vendor:         modelIn.Vendor, TypePatterns: modelIn.TypePatterns,
 	}
-	return nil
+
+	return nil, *modelIn
 }
