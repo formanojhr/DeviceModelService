@@ -12,7 +12,7 @@ type DeviceModel struct {
 	DeviceType     string   `json:"DeviceType"`     // IPPHONE, VIDEO, HEADSET etc
 	DeviceTypeUUID string   `json:"DeviceTypeUUID"` // UUID for a device
 	Vendor         string   `json:"Vendor"`         // CISCO, Polycom etc
-	TypePatterns   []string // Trio CP what the device connection header string contains
+	TypePatterns   []string `json:"TypePatterns"`   // Trio CP what the device connection header string contains
 }
 
 var models = map[string]DeviceModel{
@@ -21,13 +21,14 @@ var models = map[string]DeviceModel{
 }
 
 //constructor
-func NewDeviceModel(modelName string, modelNumber string, deviceType string, deviceTypeUUID string, vendor string) *DeviceModel {
+func NewDeviceModel(modelName string, modelNumber string, deviceType string, deviceTypeUUID string, vendor string, typePatterns []string) *DeviceModel {
 	return &DeviceModel{
 		ModelName:      modelName,
 		ModelNumber:    modelNumber,
 		DeviceType:     deviceType,
 		DeviceTypeUUID: deviceTypeUUID,
 		Vendor:         vendor,
+		TypePatterns:   typePatterns,
 	}
 }
 
