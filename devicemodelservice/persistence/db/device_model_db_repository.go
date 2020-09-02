@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/google/uuid"
 	"log"
 	"os"
 )
@@ -66,7 +67,7 @@ func (r *DeviceModelDBRepository) FindAll() ([]*model.DeviceModel, error) {
 	i := 0
 	for _, deviceModel := range devmdls {
 		deviceModels[i] = model.NewDeviceModel(deviceModel.ModelName, deviceModel.ModelNumber, deviceModel.DeviceType,
-			deviceModel.DeviceTypeUUID, deviceModel.Vendor)
+			deviceModel.DeviceTypeUUID, deviceModel.Vendor, deviceModel.TypePatterns)
 		i++
 	}
 	return deviceModels, nil
@@ -132,6 +133,7 @@ func (r *DeviceModelDBRepository) FindByModelName(name string) (*model.DeviceMod
 	i := 0
 	for _, deviceModel := range devmdls {
 		if deviceModel.ModelName == name { // check if the input requested matches
+			fmt.Println(deviceModel)
 			return &deviceModel, nil
 		}
 		i++
@@ -140,13 +142,18 @@ func (r *DeviceModelDBRepository) FindByModelName(name string) (*model.DeviceMod
 }
 
 // find the device model by name
-func (r *DeviceModelDBRepository) Save(model *model.DeviceModel) error {
+func (r *DeviceModelDBRepository) Save(model *model.DeviceModel) (error, model.DeviceModel) {
+	u := uuid.New()
+	model.DeviceTypeUUID = u.String() // create and update UUID
 	av, err := dynamodbattribute.MarshalMap(model)
 	if err != nil {
 		fmt.Println("Got error marshalling map:")
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
+
+	fmt.Printf("UUID %s generated for model  : %s\n", u, model.ModelName)
+	fmt.Printf("Saving %s.. \n", model.ModelName)
 	// Create item in table Device Model
 	input := &dynamodb.PutItemInput{
 		Item:      av,
@@ -154,12 +161,61 @@ func (r *DeviceModelDBRepository) Save(model *model.DeviceModel) error {
 	}
 	_, err = r.Db.PutItem(input)
 	if err != nil {
-		fmt.Println("Got error calling PutItem:")
+		fmt.Println("Got error calling DynamoDB PutItem:")
+		fmt.Println(err.Error())
+		return err, *model
+	}
+	fmt.Printf("Success saving device model %s typeUUID %s \n", model.ModelName, model.DeviceTypeUUID)
+	return nil, *model
+}
+
+// find the device model by name
+func (r *DeviceModelDBRepository) UpdateModel(modelUpdate model.DeviceModel, oldModel model.DeviceModel) error {
+	// NOTE this is a simple update where old resource is replaced by new one
+	if modelUpdate.DeviceTypeUUID == "" {
+		modelUpdate.DeviceTypeUUID = oldModel.DeviceTypeUUID // update UUID from pre existing model copy in db
+	}
+	fmt.Println(modelUpdate)
+	av, err := dynamodbattribute.MarshalMap(modelUpdate)
+	if err != nil {
+		fmt.Println("Got error marshalling map:")
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	fmt.Printf("Updating %s.. \n", modelUpdate.ModelName)
+	// Create item in table Device Model
+	input := &dynamodb.PutItemInput{
+		Item:      av,
+		TableName: aws.String(tname),
+	}
+	_, err = r.Db.PutItem(input)
+	if err != nil {
+		fmt.Println("Got error calling DynamoDB PutItem:")
 		fmt.Println(err.Error())
 		return err
 	}
-	fmt.Printf("Success saving device model %s typeUUID %s \n", model.ModelName, model.DeviceTypeUUID)
+	fmt.Printf("Success updating device model %s typeUUID %s \n", modelUpdate.ModelName, modelUpdate.DeviceTypeUUID)
 	return nil
+}
+
+func (r *DeviceModelDBRepository) DeleteItem(modelName string) (error, string) {
+	// Create item in table Device Model
+	input := &dynamodb.DeleteItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"ModelName": {
+				N: aws.String(modelName),
+			},
+		},
+		TableName: aws.String(tname),
+	}
+	_, err := r.Db.DeleteItem(input)
+	if err != nil {
+		fmt.Println("Got error calling DynamoDB PutItem:")
+		fmt.Println(err.Error())
+		return err, "Got error calling DynamoDB PutItem"
+	}
+	fmt.Printf("Success saving device model %s \n", modelName)
+	return nil, "Success saving device model"
 }
 
 func main() {
