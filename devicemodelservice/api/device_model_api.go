@@ -11,10 +11,12 @@ import (
 type DeviceModelAPI interface {
 	GetModelByName(name string) (model.DeviceModel, error)
 	GetModels() []model.DeviceModel
+	AddModel(model model.DeviceModel)
+	UpdateModel(model model.DeviceModel)
+	DeleteModel(name string)
 }
 
 type DeviceModelAPIInstance struct {
-	//repo    DeviceModelRepository
 	Service *service.DeviceModelService
 }
 
@@ -41,6 +43,11 @@ func (s *DeviceModelAPIInstance) GetModelByName(name string) (*model.DeviceModel
 	return model, nil
 }
 
+// Add a new model
+func (s *DeviceModelAPIInstance) AddModel(model model.DeviceModel) (error, string) {
+	return s.Service.AddModel(model)
+}
+
 func (s *DeviceModelAPIInstance) GetModels() ([]*model.DeviceModel, error) {
 	models, err := s.Service.GetAllModels()
 
@@ -53,4 +60,9 @@ func (s *DeviceModelAPIInstance) GetModels() ([]*model.DeviceModel, error) {
 		return nil, fmt.Errorf("No models are found")
 	}
 	return models, nil
+}
+
+// update pre existing model
+func (s *DeviceModelAPIInstance) UpdateModel(model model.DeviceModel) error {
+	return s.Service.UpdateModel(model)
 }
