@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package devicemodel;
+option go_package = "devicemodel";
+
+service DeviceModelService {
+    //A simple rpc ; Obtains the device model metadata by name
+    rpc FindDeviceModelByName(ModelName) returns (DeviceModelResponseType){}
+    rpc FindAllModels(FindAllModelsParams) returns (ListDeviceModelResponseType){}
+}
+
+message ModelName {
+    string modelName = 1;
+}
+
+message FindAllModelsParams{
+}
+
+message DeviceModelResponseType {
+    string modelName = 1; // CP, Trio etc
+    string modelNumber = 2; // 8300  etc
+    DeviceType deviceType = 3; // IPPHONE, VIDEO, HEADSET etc
+    string deviceTypeUUID = 4;  // UUID for a device type a hexa
+    string vendor = 5; // CISCO, Polycom etc
+    repeated string TypePatterns = 6; // Trio CP what the device connection header string contains
+}
+
+message ListDeviceModelResponseType {
+    repeated DeviceModelResponseType models = 1;
+}
+
+enum DeviceType {
+    IPPHONE = 0;
+    VIDEO = 1;
+    HEADSET = 2;
+}
