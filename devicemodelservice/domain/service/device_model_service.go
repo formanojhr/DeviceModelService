@@ -54,6 +54,10 @@ func (d *DeviceModelService) UpdateModel(m model.DeviceModel) error {
 }
 
 func (d *DeviceModelService) GetModelByName(modelName string) (*model.DeviceModel, error) {
+	if len(modelName) == 0 {
+		fmt.Errorf("empty model name string received")
+		return nil, fmt.Errorf("empty model name string received")
+	}
 	model, err := d.repo.FindByModelName(modelName)
 
 	if err != nil {
