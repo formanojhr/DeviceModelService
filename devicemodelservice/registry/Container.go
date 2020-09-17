@@ -25,6 +25,10 @@ func NewContainer() (*DeviceModelContainer, error) {
 			Name:  "device-model-API",
 			Build: buildDeviceModelAPI,
 		},
+		{
+			Name:  "device-model-service",
+			Build: buildDeviceModelService,
+		},
 	}...); err != nil {
 		return nil, err
 	}
@@ -47,4 +51,11 @@ func buildDeviceModelAPI(ctn di.Container) (interface{}, error) {
 	repo := db.New()
 	service := service2.NewDeviceModelService(repo)
 	return api.NewDeviceModelAPI(service), nil
+}
+
+func buildDeviceModelService(ctn di.Container) (interface{}, error) {
+	//repo := inmemory.NewDeviceModelRepository()
+	repo := db.New()
+	service := service2.NewDeviceModelService(repo)
+	return *service, nil
 }
