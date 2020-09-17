@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/google/uuid"
 	"log"
 	"os"
@@ -15,7 +16,7 @@ import (
 
 // a dynamo db based device model repository
 type DeviceModelDBRepository struct {
-	Db *dynamodb.DynamoDB // a dynamo db client
+	Db dynamodbiface.DynamoDBAPI // a dynamo db client
 }
 
 const tname string = "DeviceModels"
@@ -38,7 +39,7 @@ func New() *DeviceModelDBRepository {
 	}
 	// send back a new ref to DeviceModelDBRepository
 	dmd := &DeviceModelDBRepository{
-		Db: svc,
+		Db: dynamodbiface.DynamoDBAPI(svc),
 	}
 	return dmd
 }
