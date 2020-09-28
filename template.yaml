@@ -19,10 +19,23 @@ Resources:
       Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
       Events:
         GetRequest:
+          Policies: AmazonDynamoDBFullAccess
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /devicemodels
             Method: GET
+        PostRequest:
+          Policies: AmazonDynamoDBFullAccess
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /devicemodels
+            Method: POST
+        PutRequest:
+          Policies: AmazonDynamoDBFullAccess
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /devicemodels
+            Method: PUT
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
